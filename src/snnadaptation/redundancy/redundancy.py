@@ -11,7 +11,7 @@ from typeguard import typechecked
 
 
 @typechecked
-def implement_adaptation_mechanism(
+def other_implement_adaptation_mechanism(
     adaptation_graph: nx.DiGraph,
     # m,
 ) -> None:

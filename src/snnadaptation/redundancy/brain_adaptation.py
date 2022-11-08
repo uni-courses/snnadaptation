@@ -10,7 +10,7 @@ from snnalgorithms.sparse.MDSA.old_conversion import (
 from snnbackends.add_monitor_dict import add_monitor_to_dict
 from typeguard import typechecked
 
-from ..helper import print_time
+from snnadaptation.helper import print_time
 
 
 @typechecked

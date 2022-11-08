@@ -2,7 +2,7 @@
 from typeguard import typechecked
 
 # pylint: disable=R0801
-from ..Supported_experiment_settings import Supported_experiment_settings
+from snncompare.exp_setts.Supported_experiment_settings import Supported_experiment_settings
 
 
 class Adaptations_settings:
