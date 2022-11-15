@@ -3,11 +3,11 @@ import copy
 from typing import Any, List, Tuple
 
 import networkx as nx
-from snnalgorithms.helper_network_structure import plot_coordinated_graph
 from snnalgorithms.sparse.MDSA.old_conversion import (
     convert_networkx_graph_to_snn_with_one_neuron,
 )
 from snnbackends.add_monitor_dict import add_monitor_to_dict
+from snncompare.export_plots.get_plot_data import plot_coordinated_graph
 from snncompare.helper import print_time
 from typeguard import typechecked
 
