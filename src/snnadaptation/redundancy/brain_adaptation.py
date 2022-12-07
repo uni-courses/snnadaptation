@@ -3,10 +3,6 @@ import copy
 from typing import Any, List, Tuple
 
 import networkx as nx
-from snnalgorithms.sparse.MDSA.old_conversion import (
-    convert_networkx_graph_to_snn_with_one_neuron,
-)
-from snnbackends.add_monitor_dict import add_monitor_to_dict
 from snncompare.export_plots.get_plot_data import plot_coordinated_graph
 from snncompare.helper import print_time
 from typeguard import typechecked
@@ -42,7 +38,7 @@ def adaptation_mech_2_networkx_and_snn(
     # pylint: disable=R0913
     # 9 arguments is considered acceptable here as it requires quite some
     # information to apply the adaptation mechanism.
-
+    print(sim_time)
     # Implement brain adaptation on networkx graph.
     dead_neuron_names = implement_adaptation_mechanism(
         test_object.get_degree,
@@ -58,7 +54,7 @@ def adaptation_mech_2_networkx_and_snn(
     )
 
     # Convert the graph with brain adaptation to an SNN.
-    test_object = convert_new_graph_to_snn(test_object, sim_time)
+    # TODO: restore
     latest_time, latest_millis = print_time("Got adapted SNN.", latest_millis)
     return dead_neuron_names, latest_time, latest_millis
 
@@ -294,29 +290,3 @@ def add_recurrent_inhibitiory_synapses(
             ],
             weight=get_degree.nodes[nodename]["recur"],
         )
-
-
-@typechecked
-def convert_new_graph_to_snn(test_object: Any, sim_time: int) -> Any:
-    """
-
-    :param test_object: Object containing test settings.
-    :param sim_time: Nr. of timesteps for which the experiment is ran.
-
-    """
-    # Convert the snn networkx graph into a Loihi implementation.
-    (
-        test_object.converted_nodes,
-        test_object.lhs_neuron,
-        test_object.neurons,
-        test_object.lhs_node,
-        test_object.neuron_dict,
-    ) = convert_networkx_graph_to_snn_with_one_neuron(test_object.get_degree)
-
-    # Create monitor dict
-    test_object.monitor_dict = {}
-    for neuron in test_object.neurons:
-        test_object.monitor_dict = add_monitor_to_dict(
-            neuron, test_object.monitor_dict, sim_time
-        )
-    return test_object

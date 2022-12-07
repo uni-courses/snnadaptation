@@ -1,12 +1,7 @@
 """Applies brain adaptation to a MDSA SNN graph."""
 import copy
-from typing import Any
 
 import networkx as nx
-from snnalgorithms.sparse.MDSA.old_conversion import (
-    convert_networkx_graph_to_snn_with_one_neuron,
-)
-from snnbackends.add_monitor_dict import add_monitor_to_dict
 from typeguard import typechecked
 
 
@@ -224,31 +219,3 @@ def add_recurrent_inhibitiory_synapses(
             ],
             weight=adaptation_graph.nodes[nodename]["recur"],
         )
-
-
-@typechecked
-def convert_new_graph_to_snn(test_object: Any, sim_time: int) -> Any:
-    """
-
-    :param test_object: Object containing test settings.
-    :param sim_time: Nr. of timesteps for which the experiment is ran.
-
-    """
-    # Convert the snn networkx graph into a Loihi implementation.
-    (
-        test_object.converted_nodes,
-        test_object.lhs_neuron,
-        test_object.neurons,
-        test_object.lhs_node,
-        test_object.neuron_dict,
-    ) = convert_networkx_graph_to_snn_with_one_neuron(
-        test_object.adaptation_graph
-    )
-
-    # Create monitor dict
-    test_object.monitor_dict = {}
-    for neuron in test_object.neurons:
-        test_object.monitor_dict = add_monitor_to_dict(
-            neuron, test_object.monitor_dict, sim_time
-        )
-    return test_object
