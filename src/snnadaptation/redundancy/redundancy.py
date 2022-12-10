@@ -2,6 +2,7 @@
 import copy
 
 import networkx as nx
+from snnbackends.networkx.LIF_neuron import LIF_neuron, Synapse
 from typeguard import typechecked
 
 
@@ -30,6 +31,7 @@ def other_implement_adaptation_mechanism(
 
         # Create redundant neurons.
         create_redundant_node(adaptation_graph, node_name)
+        print(f"Added:{node_name}")
 
     # Start new loop before adding edges, because all reduundant neurons need
     # to exist before creating synapses.
@@ -91,27 +93,36 @@ def create_redundant_node(
     :param adaptation_graph: Graph with the MDSA SNN approximation solution.
     :param node_name: Node of the name of a networkx graph.
     """
-    # TODO: get d from node from algorithm graph.
-    vth = compute_vth_for_delay(adaptation_graph, node_name)
-    adaptation_graph.add_node(
-        f"red_{node_name}",
-        du=adaptation_graph.nodes[node_name]["du"],
-        dv=adaptation_graph.nodes[node_name]["dv"],
-        bias=adaptation_graph.nodes[node_name]["bias"],
-        vth=vth,
+    # TODO get spacing and recurrent weight form algo specification.
+    spacing: float = 0.25
+
+    # TODO: include
+    #    spike={},
+    #    is_redundant=True,
+    ori_lif = adaptation_graph.nodes[node_name]["nx_lif"][0]
+    bare_nodename = ori_lif.name
+    identifiers = ori_lif.identifiers
+    lif_neuron = LIF_neuron(
+        name=f"red_{bare_nodename}",
+        bias=adaptation_graph.nodes[node_name]["nx_lif"][0].bias.get(),
+        du=adaptation_graph.nodes[node_name]["nx_lif"][0].du.get(),
+        dv=adaptation_graph.nodes[node_name]["nx_lif"][0].dv.get(),
+        vth=compute_vth_for_delay(adaptation_graph, node_name),
         pos=(
             float(
-                adaptation_graph.nodes[node_name]["pos"][0]
-                + 0.25 * adaptation_graph.graph["alg_props"]["d"]
+                adaptation_graph.nodes[node_name]["nx_lif"][0].pos[0]
+                + 0.25 * spacing
             ),
             float(
-                adaptation_graph.nodes[node_name]["pos"][1]
-                - 0.25 * adaptation_graph.graph["alg_props"]["d"]
+                adaptation_graph.nodes[node_name]["nx_lif"][0].pos[1]
+                - 0.25 * spacing
             ),
         ),
-        spike={},
-        is_redundant=True,
+        identifiers=identifiers,
     )
+
+    adaptation_graph.add_node(lif_neuron.full_name)
+    adaptation_graph.nodes[lif_neuron.full_name]["nx_lif"] = [lif_neuron]
 
 
 @typechecked
@@ -132,9 +143,9 @@ def compute_vth_for_delay(
         # or node_name[:9] == "selector_"
         or node_name[:16] == "degree_receiver_"
     ):
-        vth = adaptation_graph.nodes[node_name]["vth"] + 1
+        vth = adaptation_graph.nodes[node_name]["nx_lif"][0].vth.get() + 1
     else:
-        vth = adaptation_graph.nodes[node_name]["vth"]
+        vth = adaptation_graph.nodes[node_name]["nx_lif"][0].vth.get()
     return vth
 
 
@@ -150,11 +161,21 @@ def add_input_synapses(adaptation_graph: nx.digraph, node_name: str) -> None:
         # Compute set edge weight
         left_node = edge[0]
         right_node = f"red_{node_name}"
-        weight = adaptation_graph[edge[0]][edge[1]]["weight"]
+        weight = adaptation_graph[edge[0]][edge[1]]["synapse"].weight
 
         # Create edge
-        adaptation_graph.add_edge(
-            left_node, right_node, weight=weight, is_redundant=True
+        # adaptation_graph.add_edge(
+        #    left_node, right_node, weight=weight, is_redundant=True
+        # )
+
+        adaptation_graph.add_edges_from(
+            [(left_node, right_node)],
+            synapse=Synapse(
+                weight=weight,
+                delay=0,
+                change_per_t=0,
+            ),
+            is_redundant=True,
         )
 
 
@@ -173,11 +194,20 @@ def add_output_synapses(adaptation_graph: nx.digraph, node_name: str) -> None:
         # Compute set edge weight
         left_node = f"red_{node_name}"
         right_node = edge[1]
-        weight = adaptation_graph[edge[0]][edge[1]]["weight"]
+        weight = adaptation_graph[edge[0]][edge[1]]["synapse"].weight
 
         # Create edge
-        adaptation_graph.add_edge(
-            left_node, right_node, weight=weight, is_redundant=True
+        # adaptation_graph.add_edge(
+        # left_node, right_node, weight=weight, is_redundant=True
+        # )
+        adaptation_graph.add_edges_from(
+            [(left_node, right_node)],
+            synapse=Synapse(
+                weight=weight,
+                delay=0,
+                change_per_t=0,
+            ),
+            is_redundant=True,
         )
 
 
@@ -193,9 +223,19 @@ def add_inhibitory_synapse(
     """
     # TODO: compute what minimum inhibitory weight should be in network to
     # prevent all neurons from spiking.
+    # adaptation_graph.add_edges_from(
+    # [(node_name, f"red_{node_name}")], weight=-100
+    # )
     adaptation_graph.add_edges_from(
-        [(node_name, f"red_{node_name}")], weight=-100
+        [(node_name, f"red_{node_name}")],
+        synapse=Synapse(
+            weight=-100,
+            delay=0,
+            change_per_t=0,
+        ),
+        is_redundant=True,
     )
+
     # TODO: set edge weight
 
 
