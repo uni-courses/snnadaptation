@@ -33,7 +33,7 @@ def other_implement_adaptation_mechanism(
         create_redundant_node(adaptation_graph, node_name)
         print(f"Added:{node_name}")
 
-    # Start new loop before adding edges, because all reduundant neurons need
+    # Start new loop before adding edges, because all redundant neurons need
     # to exist before creating synapses.
     for node_name in original_nodes:
         # Add input synapses to redundant node.
