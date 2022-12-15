@@ -2,6 +2,7 @@
 import copy
 
 import networkx as nx
+from snnalgorithms.sparse.MDSA.layout import Node_layout
 from snnbackends.networkx.LIF_neuron import LIF_neuron, Synapse
 from typeguard import typechecked
 
@@ -19,6 +20,8 @@ def other_implement_adaptation_mechanism(
 
     # Create a copy of the original list of nodes of the input graph.
     original_nodes = copy.deepcopy(adaptation_graph.nodes)
+    # redundancy:int = run_config["adaptation"]["redundancy"] # TODO: apply
+    node_redundancy = 1
 
     for node_name in original_nodes:
         # Get input synapses as dictionaries, one per node, store as node
@@ -30,7 +33,7 @@ def other_implement_adaptation_mechanism(
         store_output_synapses(adaptation_graph, node_name)
 
         # Create redundant neurons.
-        create_redundant_node(adaptation_graph, node_name)
+        create_redundant_node(adaptation_graph, node_name, node_redundancy)
         print(f"Added:{node_name}")
 
     # Start new loop before adding edges, because all redundant neurons need
@@ -84,7 +87,7 @@ def store_output_synapses(
 
 @typechecked
 def create_redundant_node(
-    adaptation_graph: nx.digraph, node_name: str
+    adaptation_graph: nx.digraph, node_name: str, node_redundancy: int
 ) -> None:
     """Create neuron and set coordinate position.
 
@@ -102,6 +105,7 @@ def create_redundant_node(
     ori_lif = adaptation_graph.nodes[node_name]["nx_lif"][0]
     bare_nodename = ori_lif.name
     identifiers = ori_lif.identifiers
+    spike_once_layout = Node_layout("spike_once")
     lif_neuron = LIF_neuron(
         name=f"red_{bare_nodename}",
         bias=adaptation_graph.nodes[node_name]["nx_lif"][0].bias.get(),
@@ -111,11 +115,19 @@ def create_redundant_node(
         pos=(
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[0]
-                + 0.25 * spacing
+                + spike_once_layout.max_width_redundancy(
+                    adaptation_graph.nodes[node_name]["nx_lif"][0].pos[0],
+                    node_redundancy,
+                )
+                + 10 * spacing
             ),
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[1]
-                - 0.25 * spacing
+                + spike_once_layout.max_height_redundancy(
+                    adaptation_graph.nodes[node_name]["nx_lif"][0].pos[1],
+                    node_redundancy,
+                )
+                - 0.5 * spacing
             ),
         ),
         identifiers=identifiers,
