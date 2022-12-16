@@ -2,7 +2,10 @@
 import copy
 
 import networkx as nx
-from snnalgorithms.sparse.MDSA.layout import Node_layout
+from snnalgorithms.sparse.MDSA.layout import (
+    Node_layout,
+    get_hori_redundant_redundancy_spacing,
+)
 from snnbackends.networkx.LIF_neuron import LIF_neuron, Synapse
 from typeguard import typechecked
 
@@ -34,7 +37,6 @@ def other_implement_adaptation_mechanism(
 
         # Create redundant neurons.
         create_redundant_node(adaptation_graph, node_name, node_redundancy)
-        print(f"Added:{node_name}")
 
     # Start new loop before adding edges, because all redundant neurons need
     # to exist before creating synapses.
@@ -96,8 +98,6 @@ def create_redundant_node(
     :param adaptation_graph: Graph with the MDSA SNN approximation solution.
     :param node_name: Node of the name of a networkx graph.
     """
-    # TODO get spacing and recurrent weight form algo specification.
-    spacing: float = 0.25
 
     # TODO: include
     #    spike={},
@@ -105,7 +105,8 @@ def create_redundant_node(
     ori_lif = adaptation_graph.nodes[node_name]["nx_lif"][0]
     bare_nodename = ori_lif.name
     identifiers = ori_lif.identifiers
-    spike_once_layout = Node_layout("spike_once")
+    node_layout = Node_layout(ori_lif.name)
+
     lif_neuron = LIF_neuron(
         name=f"red_{bare_nodename}",
         bias=adaptation_graph.nodes[node_name]["nx_lif"][0].bias.get(),
@@ -115,23 +116,22 @@ def create_redundant_node(
         pos=(
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[0]
-                + spike_once_layout.max_width_redundancy(
-                    adaptation_graph.nodes[node_name]["nx_lif"][0].pos[0],
-                    node_redundancy,
-                )
-                + 10 * spacing
+                + get_hori_redundant_redundancy_spacing(bare_nodename)
+                * node_redundancy
             ),
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[1]
-                + spike_once_layout.max_height_redundancy(
-                    adaptation_graph.nodes[node_name]["nx_lif"][0].pos[1],
-                    node_redundancy,
-                )
-                - 0.5 * spacing
+                + node_layout.eff_height * node_redundancy
             ),
         ),
         identifiers=identifiers,
     )
+    if bare_nodename in ["spike_once", "rand", "degree_receiver"]:
+        print(
+            f"red_{node_name}={int(lif_neuron.pos[0])},"
+            + f"{int(lif_neuron.pos[1])}"
+        )
+    # exit()
 
     adaptation_graph.add_node(lif_neuron.full_name)
     adaptation_graph.nodes[lif_neuron.full_name]["nx_lif"] = [lif_neuron]
