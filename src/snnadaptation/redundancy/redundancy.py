@@ -38,7 +38,6 @@ def apply_redundancy(
             create_redundant_node(adaptation_graph, node_name, red_level)
 
     for red_level in range(1, redundancy + 1):
-        print(f"red_level={red_level}")
         # Start new loop before adding edges, because all redundant neurons
         # need to exist before creating synapses.
         for node_name in original_nodes:
@@ -127,13 +126,6 @@ def create_redundant_node(
         ),
         identifiers=identifiers,
     )
-    if bare_nodename in ["spike_once", "rand", "degree_receiver"]:
-        print(
-            f"r_{red_level}_{node_name}={int(lif_neuron.pos[0])},"
-            + f"{int(lif_neuron.pos[1])}"
-        )
-    # exit()
-
     adaptation_graph.add_node(lif_neuron.full_name)
     adaptation_graph.nodes[lif_neuron.full_name]["nx_lif"] = [lif_neuron]
 
