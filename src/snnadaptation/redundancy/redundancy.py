@@ -145,7 +145,7 @@ def compute_vth_for_delay(
     if (
         node_name[:11] == "spike_once_"
         or node_name[:5] == "rand_"
-        # or node_name[:9] == "selector_"
+        or node_name[:9] == "selector_"
         or node_name[:16] == "degree_receiver_"
     ):
         vth = adaptation_graph.nodes[node_name]["nx_lif"][0].vth.get() + 1
