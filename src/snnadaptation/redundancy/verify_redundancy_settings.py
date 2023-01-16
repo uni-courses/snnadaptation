@@ -11,7 +11,7 @@ def verify_redundancy_settings_for_exp_setts(
 ) -> None:
     """Verifies the redundancy settings are presented in the right format, and
     that they contain valid values."""
-    print(f"type:adaptation={type(adaptation)}")
+
     if isinstance(adaptation, Dict):
         if "redundancy" in adaptation.keys():
             for redundancy in adaptation["redundancy"]:
@@ -38,7 +38,7 @@ def verify_redundancy_settings_for_run_config(
 ) -> None:
     """Verifies the redundancy settings are presented in the right format, and
     that they contain valid values."""
-    print(f"type:adaptation={type(adaptation)}")
+
     if isinstance(adaptation, Dict):
         if "redundancy" in adaptation.keys():
             if adaptation["redundancy"] < 1:
