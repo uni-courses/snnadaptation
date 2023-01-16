@@ -15,13 +15,13 @@ def verify_redundancy_settings_for_exp_setts(
     if isinstance(adaptation, Dict):
         if "redundancy" in adaptation.keys():
             for redundancy in adaptation["redundancy"]:
-                if redundancy < 1:
+                if redundancy < 2:
                     raise ValueError(
-                        "Error, redundancy should be 1 or larger."
+                        "Error, redundancy should be 2 or larger."
                     )
-                if redundancy % 2 == 0:
+                if redundancy % 2 == 1:
                     raise ValueError(
-                        "Error, redundancy should be odd integer."
+                        "Error, redundancy should be even integer."
                     )
 
         else:
@@ -41,10 +41,10 @@ def verify_redundancy_settings_for_run_config(
 
     if isinstance(adaptation, Dict):
         if "redundancy" in adaptation.keys():
-            if adaptation["redundancy"] < 1:
-                raise ValueError("Error, redundancy should be 1 or larger.")
-            if adaptation["redundancy"] % 2 == 0:
-                raise ValueError("Error, redundancy should be odd integer.")
+            if adaptation["redundancy"] < 2:
+                raise ValueError("Error, redundancy should be 2 or larger.")
+            if adaptation["redundancy"] % 2 == 1:
+                raise ValueError("Error, redundancy should be even integer.")
 
         else:
             raise KeyError(
