@@ -1,5 +1,7 @@
 """Contains experiment settings."""
 # pylint: disable=R0801
+from typing import Dict
+
 from snncompare.exp_setts.Supported_experiment_settings import (
     Supported_experiment_settings,
 )
@@ -16,14 +18,15 @@ class Adaptations_settings:
         self,
     ) -> None:
 
-        self.without_adaptation: dict = {
+        self.without_adaptation: Dict = {
             "None": [],
         }
 
         self.with_adaptation = {
             "redundancy": [
                 1.0,
-                # 2.0, # TODO: also support
+                3.0,
+                5.0,
             ],
         }
 
@@ -44,7 +47,7 @@ class Radiation_settings:
     def __init__(
         self,
     ) -> None:
-        self.without_radiation: dict = {
+        self.without_radiation: Dict = {
             "None": [],
         }
         self.with_radiation = {
