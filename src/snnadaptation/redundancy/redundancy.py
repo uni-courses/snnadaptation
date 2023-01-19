@@ -72,7 +72,7 @@ def store_input_synapses(adaptation_graph: nx.DiGraph, node_name: str) -> None:
 
 @typechecked
 def store_output_synapses(
-    adaptation_graph: nx.digraph, node_name: str
+    adaptation_graph: nx.DiGraph, node_name: str
 ) -> None:
     """
 
@@ -89,7 +89,7 @@ def store_output_synapses(
 
 @typechecked
 def create_redundant_node(
-    adaptation_graph: nx.digraph, node_name: str, red_level: int
+    adaptation_graph: nx.DiGraph, node_name: str, red_level: int
 ) -> None:
     """Create neuron and set coordinate position.
 
@@ -132,7 +132,7 @@ def create_redundant_node(
 
 @typechecked
 def compute_vth_for_delay(
-    adaptation_graph: nx.digraph, node_name: str
+    adaptation_graph: nx.DiGraph, node_name: str
 ) -> float:
     """Increases vth with 1 to realise a delay of t=1 for the redundant
     spike_once neurons, rand neurons and selector neurons.
@@ -156,7 +156,7 @@ def compute_vth_for_delay(
 
 @typechecked
 def add_input_synapses(
-    adaptation_graph: nx.digraph, node_name: str, red_level: int
+    adaptation_graph: nx.DiGraph, node_name: str, red_level: int
 ) -> None:
     """
 
@@ -188,7 +188,7 @@ def add_input_synapses(
 
 @typechecked
 def add_output_synapses(
-    adaptation_graph: nx.digraph, node_name: str, red_level: int
+    adaptation_graph: nx.DiGraph, node_name: str, red_level: int
 ) -> None:
     """
 

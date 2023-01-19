@@ -2,7 +2,7 @@
 default/Neumann implementation.
 
 TODO: Resolve duplicate code between:
-verify_redundancy_settings_for_exp_setts
+verify_redundancy_settings_for_exp_config
 and:
 verify_redundancy_settings_for_run_config
 and make sure they both work properly.
@@ -15,7 +15,7 @@ from typing import Dict, List
 from typeguard import typechecked
 
 from snnadaptation.redundancy.verify_redundancy_settings import (
-    verify_redundancy_settings_for_exp_setts,
+    verify_redundancy_settings_for_exp_config,
 )
 
 # from ...snnalgorithms.tests.sparse.MDSA.test_snn_results
@@ -29,7 +29,7 @@ class Test_invalid_redundancy_is_caught(Test_mdsa_snn_results):
     def __init__(self, *args, **kwargs) -> None:  # type:ignore[no-untyped-def]
         super(Test_mdsa_snn_results, self).__init__(*args, **kwargs)
         # Generate default experiment config.
-        self.create_exp_setts()
+        self.create_exp_config()
 
     @typechecked
     def test_verify_redundancy_settings_catches_invalid_redundancy(
@@ -47,7 +47,7 @@ class Test_invalid_redundancy_is_caught(Test_mdsa_snn_results):
 
             with self.assertRaises(ValueError) as context:
                 print(f"adaptation_settings={adaptation_settings}")
-                verify_redundancy_settings_for_exp_setts(adaptation_settings)
+                verify_redundancy_settings_for_exp_config(adaptation_settings)
 
             if invalid_redundancy < 1:
                 self.assertTrue(
@@ -74,7 +74,7 @@ class Test_invalid_redundancy_is_caught(Test_mdsa_snn_results):
                 "redundancy": [invalid_redundancy]
             }
 
-            verify_redundancy_settings_for_exp_setts(adaptation_settings)
+            verify_redundancy_settings_for_exp_config(adaptation_settings)
 
     @typechecked
     def test_verify_redundancy_settings_allows_none_adaptation(
@@ -82,7 +82,7 @@ class Test_invalid_redundancy_is_caught(Test_mdsa_snn_results):
     ) -> None:
         """Tests whether the verify_redundancy_settings function allows an
         adaptation setting of None to pass."""
-        verify_redundancy_settings_for_exp_setts(None)
+        verify_redundancy_settings_for_exp_config(None)
 
     @typechecked
     def test_invalid_redundancy_settings_are_caught(
