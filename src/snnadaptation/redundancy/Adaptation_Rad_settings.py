@@ -2,9 +2,7 @@
 # pylint: disable=R0801
 from typing import Dict
 
-from snncompare.exp_config.Supported_experiment_settings import (
-    Supported_experiment_settings,
-)
+from snncompare.exp_config.Exp_config import Supported_experiment_settings
 from typeguard import typechecked
 
 
