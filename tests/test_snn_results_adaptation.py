@@ -6,7 +6,7 @@ import os
 import shutil
 import unittest
 from pprint import pprint
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict
 
 from snnalgorithms.get_alg_configs import get_algo_configs
 from snnalgorithms.sparse.MDSA.alg_params import MDSA
@@ -26,6 +26,9 @@ from snncompare.export_results.load_json_to_nx_graph import (
 )
 from typeguard import typechecked
 
+if TYPE_CHECKING:
+    from snncompare.exp_config.Exp_config import Exp_config
+
 
 class Test_mdsa_snn_results(unittest.TestCase):
     """Tests whether the snn implementation of the MDSA algorithm yields the
@@ -42,21 +45,20 @@ class Test_mdsa_snn_results(unittest.TestCase):
         implementations."""
         # Generate default experiment config.
         # pylint: disable=W0201
-        self.mdsa_settings: Dict = long_exp_config_for_mdsa_testing()
+        self.mdsa_settings: Exp_config = long_exp_config_for_mdsa_testing()
         # self.mdsa_creation_only_size_3_4: Dict = short_mdsa_test_exp_config()
         # self.mdsa_creation_only_size_3_4: Dict =(
         # minimal_mdsa_test_exp_config()
         # )
 
         # Do not output images.
-        self.mdsa_settings["recreate_s2"] = True
-        self.mdsa_settings["overwrite_images_only"] = False
-        self.mdsa_settings["show_snns"] = False
-        self.mdsa_settings["export_images"] = False
-        self.mdsa_settings["export_types"] = ["png"]
+        self.mdsa_settings.recreate_s2 = True
+        self.mdsa_settings.overwrite_images_only = False
+        self.mdsa_settings.export_images = False
+        self.mdsa_settings.export_types = ["png"]
 
     @typechecked
-    def helper(self, mdsa_settings: Dict) -> None:
+    def helper(self, mdsa_settings: Exp_config) -> None:
         """Tests whether the results of the snn implementation of the MDSA
         algorithm are the same as those of the default/Neumann implementation
         of that MDSA algorithm. ."""
@@ -95,13 +97,15 @@ class Test_mdsa_snn_results(unittest.TestCase):
 
 
 @typechecked
-def override_with_single_run_setting(mdsa_settings: Dict) -> Experiment_runner:
+def override_with_single_run_setting(
+    mdsa_settings: Exp_config,
+) -> Experiment_runner:
     """Overwrites a list of experiment settings to only run the experiment on a
     single run configuration."""
     algorithms = {
         "MDSA": get_algo_configs(MDSA(list(range(0, 1, 1))).__dict__)
     }
-    mdsa_settings["algorithms"] = algorithms
+    mdsa_settings.algorithms = algorithms
     some_run_config_with_error = run_config_with_error()
     some_run_config_with_error.export_images = True
     exp_runner = Experiment_runner(mdsa_settings, some_run_config_with_error)

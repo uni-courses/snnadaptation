@@ -20,7 +20,7 @@ from snnadaptation.redundancy.verify_redundancy_settings import (
 
 # from ...snnalgorithms.tests.sparse.MDSA.test_snn_results
 # import Test_mdsa_snn_results
-from tests.test_snn_results import Test_mdsa_snn_results
+from tests.test_snn_results_adaptation import Test_mdsa_snn_results
 
 
 class Test_invalid_redundancy_is_caught(Test_mdsa_snn_results):
@@ -94,7 +94,7 @@ class Test_invalid_redundancy_is_caught(Test_mdsa_snn_results):
         for invalid_redundancy in invalid_redundancies:
 
             # Modify configuration to include adaptation.
-            self.mdsa_settings["adaptations"] = {
+            self.mdsa_settings.adaptations = {
                 "redundancy": [invalid_redundancy]
             }
             # adaptation_settings: Dict[str, List[int]] = {
