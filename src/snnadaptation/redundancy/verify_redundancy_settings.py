@@ -6,6 +6,7 @@ from typeguard import typechecked
 
 @typechecked
 def verify_redundancy_settings_for_exp_config(
+    *,
     # adaptation: Union[None, Dict[str, List[int]]],
     adaptation: Union[None, Dict],
 ) -> None:
@@ -33,6 +34,7 @@ def verify_redundancy_settings_for_exp_config(
 
 @typechecked
 def verify_redundancy_settings_for_run_config(
+    *,
     # adaptation: Union[None, Dict[str, List[int]]],
     adaptation: Union[None, Dict],
 ) -> None:
