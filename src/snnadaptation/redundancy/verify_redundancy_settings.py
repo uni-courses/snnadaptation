@@ -35,7 +35,6 @@ def verify_redundancy_settings_for_exp_config(
 @typechecked
 def verify_redundancy_settings_for_run_config(
     *,
-    # adaptation: Union[None, Dict[str, List[int]]],
     adaptation: Union[None, Dict],
 ) -> None:
     """Verifies the redundancy settings are presented in the right format, and
