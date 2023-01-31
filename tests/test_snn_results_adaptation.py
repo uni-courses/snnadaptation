@@ -117,9 +117,12 @@ def assert_run_config_json_results(
     test_object: Any,
     run_config: Run_config,
 ) -> None:
-    """Verifies the results of a run config using the json result output."""
+    """Verifies the results of a run config using the json result output.
+
+    TODO: update expected_stages.
+    """
     nx_graphs = load_json_to_nx_graph_from_file(
-        run_config=run_config, stage_index=4
+        run_config=run_config, stage_index=4, expected_stages=[1, 2, 4]
     )
 
     # Verify results are as expected.
