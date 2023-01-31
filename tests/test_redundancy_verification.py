@@ -47,7 +47,9 @@ class Test_invalid_redundancy_is_caught(Test_mdsa_snn_results):
 
             with self.assertRaises(ValueError) as context:
                 print(f"adaptation_settings={adaptation_settings}")
-                verify_redundancy_settings_for_exp_config(adaptation_settings)
+                verify_redundancy_settings_for_exp_config(
+                    adaptation=adaptation_settings
+                )
 
             if invalid_redundancy < 1:
                 self.assertTrue(
@@ -74,7 +76,9 @@ class Test_invalid_redundancy_is_caught(Test_mdsa_snn_results):
                 "redundancy": [invalid_redundancy]
             }
 
-            verify_redundancy_settings_for_exp_config(adaptation_settings)
+            verify_redundancy_settings_for_exp_config(
+                adaptation=adaptation_settings
+            )
 
     @typechecked
     def test_verify_redundancy_settings_allows_none_adaptation(
@@ -82,7 +86,7 @@ class Test_invalid_redundancy_is_caught(Test_mdsa_snn_results):
     ) -> None:
         """Tests whether the verify_redundancy_settings function allows an
         adaptation setting of None to pass."""
-        verify_redundancy_settings_for_exp_config(None)
+        verify_redundancy_settings_for_exp_config(adaptation=None)
 
     @typechecked
     def test_invalid_redundancy_settings_are_caught(
