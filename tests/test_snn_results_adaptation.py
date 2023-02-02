@@ -58,6 +58,9 @@ class Test_mdsa_snn_results(unittest.TestCase):
         """Tests whether the results of the snn implementation of the MDSA
         algorithm are the same as those of the default/Neumann implementation
         of that MDSA algorithm. ."""
+        # TODO: create output_config with valid content.
+        output_config = None
+
         pprint(mdsa_settings)
 
         # Remove results directory if it exists.
@@ -77,12 +80,14 @@ class Test_mdsa_snn_results(unittest.TestCase):
         # Get experiment runner for long test.
         full_exp_runner = Experiment_runner(
             exp_config=mdsa_settings,
+            output_config=output_config,
             perform_run=False,
             specific_run_config=None,
         )
         for run_config in full_exp_runner.run_configs:
             Experiment_runner(
                 exp_config=mdsa_settings,
+                output_config=output_config,
                 perform_run=True,
                 specific_run_config=run_config,
             )
