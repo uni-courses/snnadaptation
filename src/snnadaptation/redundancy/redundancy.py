@@ -195,17 +195,17 @@ def add_input_synapses(
     """
     for edge in adaptation_graph.nodes[node_name]["input_edges"]:
         # Compute set edge weight
-        left_node = edge[0]
-        right_node = f"r_{red_level}_{node_name}"
+        left_node_name = edge[0]
+        right_node_name = f"r_{red_level}_{node_name}"
         weight = adaptation_graph[edge[0]][edge[1]]["synapse"].weight
 
         # Create edge
         # adaptation_graph.add_edge(
-        #    left_node, right_node, weight=weight, is_redundant=True
+        #    left_node_name, right_node_name, weight=weight, is_redundant=True
         # )
 
         adaptation_graph.add_edges_from(
-            [(left_node, right_node)],
+            [(left_node_name, right_node_name)],
             synapse=Synapse(
                 weight=weight,
                 delay=0,
@@ -230,16 +230,16 @@ def add_output_synapses(
     )
     for edge in adaptation_graph.nodes[node_name]["output_edges"]:
         # Compute set edge weight
-        left_node = f"r_{red_level}_{node_name}"
-        right_node = edge[1]
+        left_node_name = f"r_{red_level}_{node_name}"
+        right_node_name = edge[1]
         weight = adaptation_graph[edge[0]][edge[1]]["synapse"].weight
 
         # Create edge
         # adaptation_graph.add_edge(
-        # left_node, right_node, weight=weight, is_redundant=True
+        # left_node_name, right_node_name, weight=weight, is_redundant=True
         # )
         adaptation_graph.add_edges_from(
-            [(left_node, right_node)],
+            [(left_node_name, right_node_name)],
             synapse=Synapse(
                 weight=weight,
                 delay=0,
@@ -264,11 +264,11 @@ def add_inhibitory_synapse(
         # TODO: compute what minimum inhibitory weight should be in network to
         # prevent all neurons from spiking.
         if left_index == 1:
-            left_node = node_name
+            left_node_name = node_name
         elif left_index > 1:
-            left_node = f"r_{red_level-1}_{node_name}"
+            left_node_name = f"r_{red_level-1}_{node_name}"
         adaptation_graph.add_edges_from(
-            [(left_node, f"r_{red_level}_{node_name}")],
+            [(left_node_name, f"r_{red_level}_{node_name}")],
             synapse=Synapse(
                 weight=-100,
                 delay=0,
