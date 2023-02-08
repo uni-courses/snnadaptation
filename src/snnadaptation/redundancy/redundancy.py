@@ -2,11 +2,9 @@
 import copy
 
 import networkx as nx
-from snnalgorithms.sparse.MDSA.layout import (
-    Node_layout,
-    get_hori_redundant_redundancy_spacing,
-)
+from snnalgorithms.sparse.MDSA.layout import Node_layout
 from snnbackends.networkx.LIF_neuron import LIF_neuron, Synapse
+from snncompare.export_plots.Plot_config import Plot_config
 from typeguard import typechecked
 
 
@@ -14,7 +12,8 @@ from typeguard import typechecked
 def apply_redundancy(
     *,
     adaptation_graph: nx.DiGraph,
-    redundancy: int
+    redundancy: int,
+    plot_config: Plot_config,
     # m,
 ) -> None:
     """
@@ -43,6 +42,7 @@ def apply_redundancy(
             create_redundant_node(
                 adaptation_graph=adaptation_graph,
                 node_name=node_name,
+                plot_config=plot_config,
                 red_level=red_level,
             )
 
@@ -114,7 +114,11 @@ def store_output_synapses(
 
 @typechecked
 def create_redundant_node(
-    *, adaptation_graph: nx.DiGraph, node_name: str, red_level: int
+    *,
+    adaptation_graph: nx.DiGraph,
+    node_name: str,
+    plot_config: Plot_config,
+    red_level: int,
 ) -> None:
     """Create neuron and set coordinate position.
 
@@ -130,7 +134,7 @@ def create_redundant_node(
     ori_lif = adaptation_graph.nodes[node_name]["nx_lif"][0]
     bare_node_name = ori_lif.name
     identifiers = ori_lif.identifiers
-    node_layout = Node_layout(ori_lif.name)
+    Node_layout(ori_lif.name)
 
     lif_neuron = LIF_neuron(
         name=f"r_{red_level}_{bare_node_name}",
@@ -143,14 +147,16 @@ def create_redundant_node(
         pos=(
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[0]
-                + get_hori_redundant_redundancy_spacing(
-                    bare_node_name=bare_node_name
-                )
-                * red_level
+                +
+                # + get_hori_redundant_redundancy_spacing(
+                #    bare_node_name=bare_node_name
+                # )
+                plot_config.dx_redundant * red_level
             ),
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[1]
-                + node_layout.eff_height * red_level
+                # + node_layout.eff_height * red_level
+                + plot_config.dy_redundant * red_level
             ),
         ),
         identifiers=identifiers,
