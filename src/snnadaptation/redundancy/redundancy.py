@@ -2,7 +2,6 @@
 import copy
 
 import networkx as nx
-from snnalgorithms.sparse.MDSA.layout import Node_layout
 from snnbackends.networkx.LIF_neuron import LIF_neuron, Synapse
 from snncompare.export_plots.Plot_config import Plot_config
 from typeguard import typechecked
@@ -134,7 +133,6 @@ def create_redundant_node(
     ori_lif = adaptation_graph.nodes[node_name]["nx_lif"][0]
     bare_node_name = ori_lif.name
     identifiers = ori_lif.identifiers
-    Node_layout(ori_lif.name)
 
     lif_neuron = LIF_neuron(
         name=f"r_{red_level}_{bare_node_name}",
