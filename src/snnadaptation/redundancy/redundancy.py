@@ -2,11 +2,8 @@
 import copy
 
 import networkx as nx
-from snnalgorithms.sparse.MDSA.layout import (
-    Node_layout,
-    get_hori_redundant_redundancy_spacing,
-)
 from snnbackends.networkx.LIF_neuron import LIF_neuron, Synapse
+from snncompare.export_plots.Plot_config import Plot_config
 from typeguard import typechecked
 
 
@@ -14,7 +11,8 @@ from typeguard import typechecked
 def apply_redundancy(
     *,
     adaptation_graph: nx.DiGraph,
-    redundancy: int
+    redundancy: int,
+    plot_config: Plot_config,
     # m,
 ) -> None:
     """
@@ -43,6 +41,7 @@ def apply_redundancy(
             create_redundant_node(
                 adaptation_graph=adaptation_graph,
                 node_name=node_name,
+                plot_config=plot_config,
                 red_level=red_level,
             )
 
@@ -114,7 +113,11 @@ def store_output_synapses(
 
 @typechecked
 def create_redundant_node(
-    *, adaptation_graph: nx.DiGraph, node_name: str, red_level: int
+    *,
+    adaptation_graph: nx.DiGraph,
+    node_name: str,
+    plot_config: Plot_config,
+    red_level: int,
 ) -> None:
     """Create neuron and set coordinate position.
 
@@ -130,7 +133,6 @@ def create_redundant_node(
     ori_lif = adaptation_graph.nodes[node_name]["nx_lif"][0]
     bare_node_name = ori_lif.name
     identifiers = ori_lif.identifiers
-    node_layout = Node_layout(ori_lif.name)
 
     lif_neuron = LIF_neuron(
         name=f"r_{red_level}_{bare_node_name}",
@@ -143,14 +145,16 @@ def create_redundant_node(
         pos=(
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[0]
-                + get_hori_redundant_redundancy_spacing(
-                    bare_node_name=bare_node_name
-                )
-                * red_level
+                +
+                # + get_hori_redundant_redundancy_spacing(
+                #    bare_node_name=bare_node_name
+                # )
+                plot_config.dx_redundant * red_level
             ),
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[1]
-                + node_layout.eff_height * red_level
+                # + node_layout.eff_height * red_level
+                + plot_config.dy_redundant * red_level
             ),
         ),
         identifiers=identifiers,
@@ -195,17 +199,17 @@ def add_input_synapses(
     """
     for edge in adaptation_graph.nodes[node_name]["input_edges"]:
         # Compute set edge weight
-        left_node = edge[0]
-        right_node = f"r_{red_level}_{node_name}"
+        left_node_name = edge[0]
+        right_node_name = f"r_{red_level}_{node_name}"
         weight = adaptation_graph[edge[0]][edge[1]]["synapse"].weight
 
         # Create edge
         # adaptation_graph.add_edge(
-        #    left_node, right_node, weight=weight, is_redundant=True
+        #    left_node_name, right_node_name, weight=weight, is_redundant=True
         # )
 
         adaptation_graph.add_edges_from(
-            [(left_node, right_node)],
+            [(left_node_name, right_node_name)],
             synapse=Synapse(
                 weight=weight,
                 delay=0,
@@ -230,16 +234,16 @@ def add_output_synapses(
     )
     for edge in adaptation_graph.nodes[node_name]["output_edges"]:
         # Compute set edge weight
-        left_node = f"r_{red_level}_{node_name}"
-        right_node = edge[1]
+        left_node_name = f"r_{red_level}_{node_name}"
+        right_node_name = edge[1]
         weight = adaptation_graph[edge[0]][edge[1]]["synapse"].weight
 
         # Create edge
         # adaptation_graph.add_edge(
-        # left_node, right_node, weight=weight, is_redundant=True
+        # left_node_name, right_node_name, weight=weight, is_redundant=True
         # )
         adaptation_graph.add_edges_from(
-            [(left_node, right_node)],
+            [(left_node_name, right_node_name)],
             synapse=Synapse(
                 weight=weight,
                 delay=0,
@@ -264,11 +268,11 @@ def add_inhibitory_synapse(
         # TODO: compute what minimum inhibitory weight should be in network to
         # prevent all neurons from spiking.
         if left_index == 1:
-            left_node = node_name
+            left_node_name = node_name
         elif left_index > 1:
-            left_node = f"r_{red_level-1}_{node_name}"
+            left_node_name = f"r_{red_level-1}_{node_name}"
         adaptation_graph.add_edges_from(
-            [(left_node, f"r_{red_level}_{node_name}")],
+            [(left_node_name, f"r_{red_level}_{node_name}")],
             synapse=Synapse(
                 weight=-100,
                 delay=0,

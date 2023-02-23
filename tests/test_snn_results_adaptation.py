@@ -11,19 +11,19 @@ from typing import TYPE_CHECKING, Any, Dict
 from snnalgorithms.get_alg_configs import get_algo_configs
 from snnalgorithms.sparse.MDSA.alg_params import MDSA
 from snnalgorithms.sparse.MDSA.get_results import get_results
-from snncompare.exp_config.custom_setts.run_configs.algo_test import (
-    long_exp_config_for_mdsa_testing,
-    run_config_with_error,
-)
 from snncompare.exp_config.Exp_config import (
     Supported_experiment_settings,
     verify_exp_config,
 )
-from snncompare.exp_config.run_config.Run_config import Run_config
 from snncompare.Experiment_runner import Experiment_runner
 from snncompare.export_results.load_json_to_nx_graph import (
     load_json_to_nx_graph_from_file,
 )
+from snncompare.json_configurations.algo_test import (
+    long_exp_config_for_mdsa_testing,
+    run_config_with_error,
+)
+from snncompare.run_config.Run_config import Run_config
 from typeguard import typechecked
 
 if TYPE_CHECKING:
@@ -49,7 +49,7 @@ class Test_mdsa_snn_results(unittest.TestCase):
 
         # Do not output images.
         self.mdsa_settings.recreate_s2 = True
-        self.mdsa_settings.overwrite_images_only = False
+        self.mdsa_settings.recreate_s3 = False
         self.mdsa_settings.export_images = False
         self.mdsa_settings.export_types = ["png"]
 
@@ -58,6 +58,9 @@ class Test_mdsa_snn_results(unittest.TestCase):
         """Tests whether the results of the snn implementation of the MDSA
         algorithm are the same as those of the default/Neumann implementation
         of that MDSA algorithm. ."""
+        # TODO: create output_config with valid content.
+        output_config = None
+
         pprint(mdsa_settings)
 
         # Remove results directory if it exists.
@@ -69,8 +72,6 @@ class Test_mdsa_snn_results(unittest.TestCase):
         verify_exp_config(
             supp_exp_config=Supported_experiment_settings(),
             exp_config=mdsa_settings,
-            has_unique_id=False,
-            allow_optional=True,
         )
 
         # OVERRIDE: Run only on a single run config.
@@ -78,14 +79,17 @@ class Test_mdsa_snn_results(unittest.TestCase):
 
         # Get experiment runner for long test.
         full_exp_runner = Experiment_runner(
-            mdsa_settings,
+            exp_config=mdsa_settings,
+            output_config=output_config,
             perform_run=False,
+            specific_run_config=None,
         )
         for run_config in full_exp_runner.run_configs:
             Experiment_runner(
-                mdsa_settings,
-                specific_run_config=run_config,
+                exp_config=mdsa_settings,
+                output_config=output_config,
                 perform_run=True,
+                specific_run_config=run_config,
             )
 
             # Verify results are identical using the json results file.
