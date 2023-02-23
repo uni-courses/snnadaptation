@@ -264,7 +264,6 @@ def add_inhibitory_synapse(
 
     """
     for left_index in range(1, red_level + 1):
-
         # TODO: compute what minimum inhibitory weight should be in network to
         # prevent all neurons from spiking.
         if left_index == 1:

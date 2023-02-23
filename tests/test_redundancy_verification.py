@@ -39,7 +39,6 @@ class Test_invalid_redundancy_is_caught(Test_mdsa_snn_results):
         error if an invalid redundancy is passed into it."""
         invalid_redundancies = [-2, -1, 0, 2, 4, 6]
         for invalid_redundancy in invalid_redundancies:
-
             # Modify configuration to include adaptation.
             adaptation_settings: Dict[str, List[int]] = {
                 "redundancy": [invalid_redundancy]
@@ -70,7 +69,6 @@ class Test_invalid_redundancy_is_caught(Test_mdsa_snn_results):
         redundancy values to pass."""
         invalid_redundancies = [1, 3, 5, 7]
         for invalid_redundancy in invalid_redundancies:
-
             # Modify configuration to include adaptation.
             adaptation_settings: Dict[str, List[int]] = {
                 "redundancy": [invalid_redundancy]
@@ -96,7 +94,6 @@ class Test_invalid_redundancy_is_caught(Test_mdsa_snn_results):
         error if an invalid redundancy is passed into it."""
         invalid_redundancies = [-2, -1, 0, 2, 4, 6]
         for invalid_redundancy in invalid_redundancies:
-
             # Modify configuration to include adaptation.
             self.mdsa_settings.adaptations = {
                 "redundancy": [invalid_redundancy]

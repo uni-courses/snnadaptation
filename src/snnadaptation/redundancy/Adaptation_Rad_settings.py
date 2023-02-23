@@ -15,7 +15,6 @@ class Adaptations_settings:
     def __init__(
         self,
     ) -> None:
-
         self.without_adaptation: Dict = {
             "None": [],
         }
