@@ -81,6 +81,7 @@ class Test_mdsa_snn_results(unittest.TestCase):
         full_exp_runner = Experiment_runner(
             exp_config=mdsa_settings,
             output_config=output_config,
+            reverse=False,
             perform_run=False,
             specific_run_config=None,
         )
@@ -88,6 +89,7 @@ class Test_mdsa_snn_results(unittest.TestCase):
             Experiment_runner(
                 exp_config=mdsa_settings,
                 output_config=output_config,
+                reverse=False,
                 perform_run=True,
                 specific_run_config=run_config,
             )
@@ -111,7 +113,13 @@ def override_with_single_run_setting(
     mdsa_settings.algorithms = algorithms
     some_run_config_with_error = run_config_with_error()
     some_run_config_with_error.export_images = True
-    exp_runner = Experiment_runner(mdsa_settings, some_run_config_with_error)
+    exp_runner = Experiment_runner(
+        exp_config=mdsa_settings,
+        output_config=None,
+        reverse=False,
+        specific_run_config=some_run_config_with_error,
+        perform_run=True,
+    )
     return exp_runner
 
 
