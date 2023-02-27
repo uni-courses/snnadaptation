@@ -118,7 +118,7 @@ repos:
     - id: mixed-line-ending
     # Asserts `.py` files in folder `/test/` (by default:) end in `_test.py`.
     - id: name-tests-test
-      exclude: ^tests/sparse/MDSA/adaptation/helper.py
+      # exclude: ^tests/sparse/MDSA/adaptation/helper.py
       # Override default to check if `.py` files in `/test/` START with `test_`.
       args: ['--django']
     # Ensures JSON files are properly formatted.
