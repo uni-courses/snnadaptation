@@ -145,16 +145,15 @@ def create_redundant_node(
         pos=(
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[0]
-                +
-                # + get_hori_redundant_redundancy_spacing(
-                #    bare_node_name=bare_node_name
-                # )
-                plot_config.dx_redundant * red_level
+                + (plot_config.dx_redundant * red_level)
+                * (1.0 + plot_config.redundant_curve_factor)
+                ** red_level  # Curve to right
             ),
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[1]
-                # + node_layout.eff_height * red_level
-                + plot_config.dy_redundant * red_level
+                + (plot_config.dy_redundant * red_level)
+                * (1.0 - plot_config.redundant_curve_factor)
+                ** red_level  # Curve down
             ),
         ),
         identifiers=identifiers,
