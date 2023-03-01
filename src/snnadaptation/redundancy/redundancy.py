@@ -3,7 +3,7 @@ import copy
 from typing import Dict
 
 import networkx as nx
-from snnbackends.networkx.LIF_neuron import LIF_neuron, Synapse
+from snnbackends.networkx.LIF_neuron import Identifier, LIF_neuron, Synapse
 from snncompare.export_plots.Plot_config import Plot_config
 from typeguard import typechecked
 
@@ -182,12 +182,29 @@ def computer_red_neuron_properties(
             adaptation_graph=adaptation_graph, node_name=node_name
         )
     else:
-        # FFFTTTTT: du=0.1,dv=-1,vth=3,bias=1,weight=3
-        # FFF+ffff+TTTTT: du=0.1,dv=-1,vth=5,bias=0,weight=1
-        bias = 0.0
-        du = 0.1
-        dv = -1.0
-        vth = 5.0
+        m_val_identifier: Identifier = adaptation_graph.nodes[node_name][
+            "nx_lif"
+        ][0].identifiers[1]
+        if m_val_identifier.description == "m_val":
+            if m_val_identifier.value == 0:
+                bias = 1.0
+                du = 0.1
+                dv = -1.0
+                vth = 1.0
+                print("SET for m =0 # TODO: set (recurrent edge) weight=1")
+
+            else:
+                # FFFTTTTT: du=0.1,dv=-1,vth=3,bias=1,weight=3
+                # FFF+ffff+TTTTT: du=0.1,dv=-1,vth=5,bias=0,weight=1
+                bias = 0.0
+                du = 0.1
+                dv = -1.0
+                vth = 5.0
+        else:
+            raise ValueError(
+                "Error, node identifier was not m_val for selector node."
+            )
+
     return {
         "bias": bias,
         "du": du,
@@ -235,7 +252,7 @@ def add_input_synapses(
         left_node_name = edge[0]
         right_node_name = f"r_{red_level}_{node_name}"
 
-        if node_name[:9] == "selector_":
+        if node_name[:9] == "selector_" and edge[0][:11] == "next_round_":
             # The redundant selector neurons only start firing n seconds after
             # the next_round neuron has fired.
             weight = 5
