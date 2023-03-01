@@ -1,5 +1,6 @@
 """Applies brain adaptation to a MDSA SNN graph."""
 import copy
+from typing import Dict
 
 import networkx as nx
 from snnbackends.networkx.LIF_neuron import LIF_neuron, Synapse
@@ -134,14 +135,18 @@ def create_redundant_node(
     bare_node_name = ori_lif.name
     identifiers = ori_lif.identifiers
 
+    redundant_neuron_properties: Dict[
+        str, float
+    ] = computer_red_neuron_properties(
+        adaptation_graph=adaptation_graph,
+        node_name=node_name,
+    )
     lif_neuron = LIF_neuron(
         name=f"r_{red_level}_{bare_node_name}",
-        bias=adaptation_graph.nodes[node_name]["nx_lif"][0].bias.get(),
-        du=adaptation_graph.nodes[node_name]["nx_lif"][0].du.get(),
-        dv=adaptation_graph.nodes[node_name]["nx_lif"][0].dv.get(),
-        vth=compute_vth_for_delay(
-            adaptation_graph=adaptation_graph, node_name=node_name
-        ),
+        bias=redundant_neuron_properties["bias"],
+        du=redundant_neuron_properties["du"],
+        dv=redundant_neuron_properties["dv"],
+        vth=redundant_neuron_properties["vth"],
         pos=(
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[0]
@@ -158,8 +163,36 @@ def create_redundant_node(
         ),
         identifiers=identifiers,
     )
+
     adaptation_graph.add_node(lif_neuron.full_name)
     adaptation_graph.nodes[lif_neuron.full_name]["nx_lif"] = [lif_neuron]
+
+
+@typechecked
+def computer_red_neuron_properties(
+    *, adaptation_graph: nx.DiGraph, node_name: str
+) -> Dict[str, float]:
+    """Computes the redundant neuron properties such that they take over in the
+    right settings."""
+    if node_name[:9] != "selector_":
+        bias = adaptation_graph.nodes[node_name]["nx_lif"][0].bias.get()
+        du = adaptation_graph.nodes[node_name]["nx_lif"][0].du.get()
+        dv = adaptation_graph.nodes[node_name]["nx_lif"][0].dv.get()
+        vth = compute_vth_for_delay(
+            adaptation_graph=adaptation_graph, node_name=node_name
+        )
+    else:
+        # FFFTTTTT: du=0.1,dv=-1,vth=3,bias=1,weight=3
+        bias = 1.0
+        du = 0.1
+        dv = -1.0
+        vth = 3.0
+    return {
+        "bias": bias,
+        "du": du,
+        "dv": dv,
+        "vth": vth,
+    }
 
 
 @typechecked
@@ -177,7 +210,7 @@ def compute_vth_for_delay(
     if (
         node_name[:11] == "spike_once_"
         or node_name[:5] == "rand_"
-        or node_name[:9] == "selector_"
+        # or node_name[:9] == "selector_"
         or node_name[:16] == "degree_receiver_"
     ):
         vth = adaptation_graph.nodes[node_name]["nx_lif"][0].vth.get() + 1
@@ -299,4 +332,18 @@ def add_recurrent_inhibitiory_synapses(
                 )
             ],
             weight=adaptation_graph.nodes[node_name]["recur"],
+        )
+    if node_name[:9] == "selector_":
+        adaptation_graph.add_edges_from(
+            [
+                (
+                    f"r_{red_level}_{node_name}",
+                    f"r_{red_level}_{node_name}",
+                )
+            ],
+            synapse=Synapse(
+                weight=3,
+                delay=0,
+                change_per_t=0,
+            ),
         )
