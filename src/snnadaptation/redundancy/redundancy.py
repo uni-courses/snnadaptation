@@ -183,10 +183,11 @@ def computer_red_neuron_properties(
         )
     else:
         # FFFTTTTT: du=0.1,dv=-1,vth=3,bias=1,weight=3
-        bias = 1.0
+        # FFF+ffff+TTTTT: du=0.1,dv=-1,vth=5,bias=0,weight=1
+        bias = 0.0
         du = 0.1
         dv = -1.0
-        vth = 3.0
+        vth = 5.0
     return {
         "bias": bias,
         "du": du,
@@ -233,13 +234,15 @@ def add_input_synapses(
         # Compute set edge weight
         left_node_name = edge[0]
         right_node_name = f"r_{red_level}_{node_name}"
-        weight = adaptation_graph[edge[0]][edge[1]]["synapse"].weight
+
+        if node_name[:9] == "selector_":
+            # The redundant selector neurons only start firing n seconds after
+            # the next_round neuron has fired.
+            weight = 5
+        else:
+            weight = adaptation_graph[edge[0]][edge[1]]["synapse"].weight
 
         # Create edge
-        # adaptation_graph.add_edge(
-        #    left_node_name, right_node_name, weight=weight, is_redundant=True
-        # )
-
         adaptation_graph.add_edges_from(
             [(left_node_name, right_node_name)],
             synapse=Synapse(
