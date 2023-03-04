@@ -140,6 +140,7 @@ def create_redundant_node(
     ] = computer_red_neuron_properties(
         adaptation_graph=adaptation_graph,
         node_name=node_name,
+        red_level=red_level,
     )
     lif_neuron = LIF_neuron(
         name=f"r_{red_level}_{bare_node_name}",
@@ -170,7 +171,7 @@ def create_redundant_node(
 
 @typechecked
 def computer_red_neuron_properties(
-    *, adaptation_graph: nx.DiGraph, node_name: str
+    *, adaptation_graph: nx.DiGraph, node_name: str, red_level: int
 ) -> Dict[str, float]:
     """Computes the redundant neuron properties such that they take over in the
     right settings."""
@@ -179,7 +180,9 @@ def computer_red_neuron_properties(
         du = adaptation_graph.nodes[node_name]["nx_lif"][0].du.get()
         dv = adaptation_graph.nodes[node_name]["nx_lif"][0].dv.get()
         vth = compute_vth_for_delay(
-            adaptation_graph=adaptation_graph, node_name=node_name
+            adaptation_graph=adaptation_graph,
+            node_name=node_name,
+            red_level=red_level,
         )
     else:
         m_val_identifier: Identifier = adaptation_graph.nodes[node_name][
@@ -198,8 +201,11 @@ def computer_red_neuron_properties(
                 # FFF+ffff+TTTTT: du=0.1,dv=-1,vth=5,bias=0,weight=1
                 bias = 0.0
                 du = 0.1
-                dv = -1.0
-                vth = 5.0
+                dv = 0.0
+                vth = (
+                    1.0 + red_level - 1
+                )  # Add delay in when redundant redundant
+                # etc. neurons take over.
         else:
             raise ValueError(
                 "Error, node identifier was not m_val for selector node."
@@ -215,7 +221,7 @@ def computer_red_neuron_properties(
 
 @typechecked
 def compute_vth_for_delay(
-    *, adaptation_graph: nx.DiGraph, node_name: str
+    *, adaptation_graph: nx.DiGraph, node_name: str, red_level: int
 ) -> float:
     """Increases vth with 1 to realise a delay of t=1 for the redundant
     spike_once neurons, rand neurons and selector neurons.
@@ -229,9 +235,13 @@ def compute_vth_for_delay(
         node_name[:11] == "spike_once_"
         or node_name[:5] == "rand_"
         # or node_name[:9] == "selector_"
-        or node_name[:16] == "degree_receiver_"
     ):
         vth = adaptation_graph.nodes[node_name]["nx_lif"][0].vth.get() + 1
+    elif node_name[:16] == "degree_receiver_":
+        vth = (
+            adaptation_graph.nodes[node_name]["nx_lif"][0].vth.get()
+            + red_level
+        )
     else:
         vth = adaptation_graph.nodes[node_name]["nx_lif"][0].vth.get()
     return vth
@@ -255,7 +265,7 @@ def add_input_synapses(
         if node_name[:9] == "selector_" and edge[0][:11] == "next_round_":
             # The redundant selector neurons only start firing n seconds after
             # the next_round neuron has fired.
-            weight = 5
+            weight = 1
         else:
             weight = adaptation_graph[edge[0]][edge[1]]["synapse"].weight
 
@@ -362,7 +372,7 @@ def add_recurrent_inhibitiory_synapses(
                 )
             ],
             synapse=Synapse(
-                weight=3,
+                weight=4,
                 delay=0,
                 change_per_t=0,
             ),
