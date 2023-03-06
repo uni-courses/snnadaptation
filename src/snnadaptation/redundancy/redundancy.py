@@ -63,13 +63,18 @@ def apply_redundancy(
                 node_name=node_name,
                 red_level=red_level,
             )
-
-            # Add inhibitory synapse from node to redundant node.
-            add_inhibitory_synapse(
+            add_inhibitory_outgoing_synapses(
                 adaptation_graph=adaptation_graph,
                 node_name=node_name,
-                red_level=red_level,
+                max_red_level=redundancy,
             )
+
+            # Add inhibitory synapse from node to redundant node.
+            # add_inhibitory_synapse(
+            #    adaptation_graph=adaptation_graph,
+            #    node_name=node_name,
+            #    red_level=red_level,
+            # )
 
             add_recurrent_inhibitiory_synapses(
                 adaptation_graph=adaptation_graph,
@@ -193,7 +198,7 @@ def computer_red_neuron_properties(
                 bias = 1.0
                 du = 0.1
                 dv = -1.0
-                vth = 1.0
+                vth = 1.0 + red_level
             else:
                 # FFFTTTTT: du=0.1,dv=-1,vth=3,bias=1,weight=3
                 # FFF+ffff+TTTTT: du=0.1,dv=-1,vth=5,bias=0,weight=1
@@ -298,10 +303,6 @@ def add_output_synapses(
         right_node_name = edge[1]
         weight = adaptation_graph[edge[0]][edge[1]]["synapse"].weight
 
-        # Create edge
-        # adaptation_graph.add_edge(
-        # left_node_name, right_node_name, weight=weight, is_redundant=True
-        # )
         adaptation_graph.add_edges_from(
             [(left_node_name, right_node_name)],
             synapse=Synapse(
@@ -314,31 +315,33 @@ def add_output_synapses(
 
 
 @typechecked
-def add_inhibitory_synapse(
-    *, adaptation_graph: nx.DiGraph, node_name: str, red_level: int
+def add_inhibitory_outgoing_synapses(
+    *, adaptation_graph: nx.DiGraph, node_name: str, max_red_level: int
 ) -> None:
-    """
+    """Adds inhibitory synapse for selector neuron."""
 
-    :param adaptation_graph: Graph with the MDSA SNN approximation solution.
-    :param node_name: Node of the name of a networkx graph.
+    edges = []
+    # Add edge from selector into redundant selectors
+    for red_level in range(1, max_red_level + 1):
+        edges.append((node_name, f"r_{red_level}_{node_name}"))
 
-    """
-    for left_index in range(1, red_level + 1):
-        # TODO: compute what minimum inhibitory weight should be in network to
-        # prevent all neurons from spiking.
-        if left_index == 1:
-            left_node_name = node_name
-        elif left_index > 1:
-            left_node_name = f"r_{red_level-1}_{node_name}"
-        adaptation_graph.add_edges_from(
-            [(left_node_name, f"r_{red_level}_{node_name}")],
-            synapse=Synapse(
-                weight=-100,
-                delay=0,
-                change_per_t=0,
-            ),
-            is_redundant=True,
-        )
+        # Add edge from redundant selector to remaining redundant selectors
+        for right_red_level in range(red_level + 1, max_red_level + 1):
+            edges.append(
+                (
+                    f"r_{red_level}_{node_name}",
+                    f"r_{right_red_level}_{node_name}",
+                )
+            )
+    adaptation_graph.add_edges_from(
+        edges,
+        synapse=Synapse(
+            weight=-100,
+            delay=0,
+            change_per_t=0,
+        ),
+        is_redundant=True,
+    )
 
 
 @typechecked
