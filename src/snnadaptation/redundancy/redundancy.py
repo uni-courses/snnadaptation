@@ -200,8 +200,10 @@ def computer_red_neuron_properties(
                 dv = -1.0
                 vth = 1.0 + red_level
             else:
-                # FFFTTTTT: du=0.1,dv=-1,vth=3,bias=1,weight=3
-                # FFF+ffff+TTTTT: du=0.1,dv=-1,vth=5,bias=0,weight=1
+                # Designed using neuron discovery grid search. Limited to a
+                # redundancy of max 4, because after that adding +1 to vth
+                # does not result in the selector neuron spiking 1 timestep
+                # later (w.r.t. an incoming spike at fixed arbitrary time t).
                 bias = 0.0
                 du = 0.1
                 dv = 0.0
