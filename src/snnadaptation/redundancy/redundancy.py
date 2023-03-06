@@ -194,8 +194,6 @@ def computer_red_neuron_properties(
                 du = 0.1
                 dv = -1.0
                 vth = 1.0
-                print("SET for m =0 # TODO: set (recurrent edge) weight=1")
-
             else:
                 # FFFTTTTT: du=0.1,dv=-1,vth=3,bias=1,weight=3
                 # FFF+ffff+TTTTT: du=0.1,dv=-1,vth=5,bias=0,weight=1
