@@ -204,6 +204,10 @@ def computer_red_neuron_properties(
                 # redundancy of max 4, because after that adding +1 to vth
                 # does not result in the selector neuron spiking 1 timestep
                 # later (w.r.t. an incoming spike at fixed arbitrary time t).
+
+                # TODO: verify within neurondiscovery that found neuron also
+                # starts firing y timesteps (, upon incrementing vth with y,)
+                # after input spike at t for arbitrary t.
                 bias = 0.0
                 du = 0.1
                 dv = 0.0
