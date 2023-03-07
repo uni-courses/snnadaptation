@@ -18,7 +18,7 @@ from snnadaptation.redundancy.verify_redundancy_settings import (
     verify_redundancy_settings_for_exp_config,
 )
 
-# from ...snnalgorithms.tests.sparse.MDSA.test_snn_results
+# from ...tests.sparse.MDSA.test_snn_results
 # import Test_mdsa_snn_results
 from tests.test_snn_results_adaptation import Test_mdsa_snn_results
 
