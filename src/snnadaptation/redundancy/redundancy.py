@@ -184,7 +184,7 @@ def computer_red_neuron_properties(
         bias = adaptation_graph.nodes[node_name]["nx_lif"][0].bias.get()
         du = adaptation_graph.nodes[node_name]["nx_lif"][0].du.get()
         dv = adaptation_graph.nodes[node_name]["nx_lif"][0].dv.get()
-        vth = compute_vth_for_delay(
+        vth = compute_vth_for_delay(  # Different vals for different neurons.
             adaptation_graph=adaptation_graph,
             node_name=node_name,
             red_level=red_level,
@@ -243,6 +243,7 @@ def compute_vth_for_delay(
     if (
         node_name[:11] == "spike_once_"
         or node_name[:5] == "rand_"
+        or node_name[:11] == "next_round_"
         # or node_name[:9] == "selector_"
     ):
         vth = adaptation_graph.nodes[node_name]["nx_lif"][0].vth.get() + 1
