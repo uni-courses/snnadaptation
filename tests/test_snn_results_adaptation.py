@@ -53,7 +53,7 @@ class Test_mdsa_snn_results(unittest.TestCase):
         self.mdsa_settings.recreate_s2 = True
         self.mdsa_settings.recreate_s3 = False
         self.mdsa_settings.export_images = False
-        self.mdsa_settings.export_types = ["png"]
+        self.mdsa_settings.export_types = []
 
     @typechecked
     def helper(self, mdsa_settings: Exp_config) -> None:
