@@ -1,6 +1,6 @@
 """Applies brain adaptation to a MDSA SNN graph."""
 import copy
-from typing import Dict
+from typing import Dict, List, Tuple
 
 import networkx as nx
 from snnbackends.networkx.LIF_neuron import Identifier, LIF_neuron, Synapse
@@ -180,7 +180,8 @@ def computer_red_neuron_properties(
 ) -> Dict[str, float]:
     """Computes the redundant neuron properties such that they take over in the
     right settings."""
-    if node_name[:9] != "selector_":
+    if node_name[:9] != "selector_" and node_name[:11] != "next_round_":
+        # if node_name[:9] != "selector_":
         bias = adaptation_graph.nodes[node_name]["nx_lif"][0].bias.get()
         du = adaptation_graph.nodes[node_name]["nx_lif"][0].du.get()
         dv = adaptation_graph.nodes[node_name]["nx_lif"][0].dv.get()
@@ -189,6 +190,11 @@ def computer_red_neuron_properties(
             node_name=node_name,
             red_level=red_level,
         )
+    elif node_name[:11] == "next_round_":
+        bias = 0.0
+        du = 0.1
+        dv = 0.0
+        vth = 1.0 + red_level - 1
     else:
         m_val_identifier: Identifier = adaptation_graph.nodes[node_name][
             "nx_lif"
@@ -204,10 +210,6 @@ def computer_red_neuron_properties(
                 # redundancy of max 4, because after that adding +1 to vth
                 # does not result in the selector neuron spiking 1 timestep
                 # later (w.r.t. an incoming spike at fixed arbitrary time t).
-
-                # TODO: verify within neurondiscovery that found neuron also
-                # starts firing y timesteps (, upon incrementing vth with y,)
-                # after input spike at t for arbitrary t.
                 bias = 0.0
                 du = 0.1
                 dv = 0.0
@@ -279,9 +281,14 @@ def add_input_synapses(
         else:
             weight = adaptation_graph[edge[0]][edge[1]]["synapse"].weight
 
+        edges: List[Tuple[str, str]] = [(left_node_name, right_node_name)]
+        if left_node_name[:11] == "next_round_":
+            # print(f'add:{(left_node_name, right_node_name)}')
+            edges.append((f"r_{red_level}_{left_node_name}", right_node_name))
+
         # Create edge
         adaptation_graph.add_edges_from(
-            [(left_node_name, right_node_name)],
+            edges,
             synapse=Synapse(
                 weight=weight,
                 delay=0,
@@ -289,6 +296,8 @@ def add_input_synapses(
             ),
             is_redundant=True,
         )
+    # if node_name == "selector_0_1":
+    # exit()
 
 
 @typechecked
