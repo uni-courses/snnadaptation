@@ -133,9 +133,7 @@ def create_redundant_node(
     :param node_name: Node of the name of a networkx graph.
     """
 
-    # TODO: include
-    #    spike={},
-    #    is_redundant=True,
+    # TODO: include spike={}, is_redundant=True,
     ori_lif = adaptation_graph.nodes[node_name]["nx_lif"][0]
     bare_node_name = ori_lif.name
     identifiers = ori_lif.identifiers
@@ -203,8 +201,8 @@ def computer_red_neuron_properties(
             if m_val_identifier.value == 0:
                 bias = 1.0
                 du = 0.1
-                dv = -1.0
-                vth = 1.0 + red_level
+                dv = 0.0
+                vth = float(red_level)
             else:
                 # Designed using neuron discovery grid search. Limited to a
                 # redundancy of max 4, because after that adding +1 to vth
@@ -213,9 +211,7 @@ def computer_red_neuron_properties(
                 bias = 0.0
                 du = 0.1
                 dv = 0.0
-                vth = (
-                    1.0 + red_level - 1
-                )  # Add delay in when redundant redundant
+                vth = float(red_level)  # Add delay in when redundant redundant
                 # etc. neurons take over.
         else:
             raise ValueError(
@@ -242,14 +238,13 @@ def compute_vth_for_delay(
     :param adaptation_graph: Graph with the MDSA SNN approximation solution.
     :param node_name: Node of the name of a networkx graph.
     """
-    if (
-        node_name[:11] == "spike_once_"
-        or node_name[:5] == "rand_"
-        or node_name[:11] == "next_round_"
-        # or node_name[:9] == "selector_"
-    ):
+    if node_name[:11] == "next_round_":
         vth = adaptation_graph.nodes[node_name]["nx_lif"][0].vth.get() + 1
-    elif node_name[:16] == "degree_receiver_":
+    elif (
+        node_name[:16] == "degree_receiver_"
+        or node_name[:11] == "spike_once_"
+        or node_name[:5] == "rand_"
+    ):
         vth = (
             adaptation_graph.nodes[node_name]["nx_lif"][0].vth.get()
             + red_level
@@ -370,6 +365,7 @@ def add_recurrent_inhibitiory_synapses(
     :param node_name: Node of the name of a networkx graph.
 
     """
+
     if "recur" in adaptation_graph.nodes[node_name].keys():
         adaptation_graph.add_edges_from(
             [
@@ -378,7 +374,11 @@ def add_recurrent_inhibitiory_synapses(
                     f"r_{red_level}_{node_name}",
                 )
             ],
-            weight=adaptation_graph.nodes[node_name]["recur"],
+            synapse=Synapse(
+                weight=adaptation_graph.nodes[node_name]["recur"],
+                delay=0,
+                change_per_t=0,
+            ),
         )
     if node_name[:9] == "selector_":
         adaptation_graph.add_edges_from(
