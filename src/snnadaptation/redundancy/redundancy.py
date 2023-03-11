@@ -189,14 +189,10 @@ def computer_red_neuron_properties(
             red_level=red_level,
         )
     elif node_name[:11] == "next_round_":
-        bias = 0.0
-        du = 1.0
-        dv = 0.0
-        vth = (
-            1.0 - 0.0000001
-        )  # Spikes once all degree receivers have fired, and
-        # a total of 1 has come in through a_in (limits functional redundant
-        # network size to (1/(0.0000001)).
+        bias = adaptation_graph.nodes[node_name]["nx_lif"][0].bias.get()
+        du = adaptation_graph.nodes[node_name]["nx_lif"][0].du.get()
+        dv = adaptation_graph.nodes[node_name]["nx_lif"][0].dv.get()
+        vth = adaptation_graph.nodes[node_name]["nx_lif"][0].vth.get()
     else:
         m_val_identifier: Identifier = adaptation_graph.nodes[node_name][
             "nx_lif"
