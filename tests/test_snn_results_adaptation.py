@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Dict
 
 from snnalgorithms.get_alg_configs import get_algo_configs
 from snnalgorithms.sparse.MDSA.alg_params import MDSA
-from snnalgorithms.sparse.MDSA.get_results import get_results
+from snnalgorithms.sparse.MDSA.get_results import get_neumann_results
 from snncompare.exp_config.Exp_config import (
     Supported_experiment_settings,
     verify_exp_config,
@@ -140,7 +140,7 @@ def assert_run_config_json_results(
     )
 
     # Verify results are as expected.
-    expected_node_names: Dict[str, int] = get_results(
+    expected_node_names: Dict[str, int] = get_neumann_results(
         input_graph=nx_graphs["input_graph"],
         iteration=run_config.iteration,
         m_val=run_config.algorithm["MDSA"]["m_val"],
