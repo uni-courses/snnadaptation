@@ -189,14 +189,10 @@ def computer_red_neuron_properties(
             red_level=red_level,
         )
     elif node_name[:11] == "next_round_":
-        bias = 0.0
-        du = 1.0
-        dv = 0.0
-        vth = (
-            1.0 - 0.0000001
-        )  # Spikes once all degree receivers have fired, and
-        # a total of 1 has come in through a_in (limits functional redundant
-        # network size to (1/(0.0000001)).
+        bias = adaptation_graph.nodes[node_name]["nx_lif"][0].bias.get()
+        du = adaptation_graph.nodes[node_name]["nx_lif"][0].du.get()
+        dv = adaptation_graph.nodes[node_name]["nx_lif"][0].dv.get()
+        vth = adaptation_graph.nodes[node_name]["nx_lif"][0].vth.get()
     else:
         m_val_identifier: Identifier = adaptation_graph.nodes[node_name][
             "nx_lif"
@@ -338,16 +334,21 @@ def add_inhibitory_outgoing_synapses(
     edges = []
     # Add edge from selector into redundant selectors
     for red_level in range(1, max_red_level + 1):
-        edges.append((node_name, f"r_{red_level}_{node_name}"))
+        if "counter" not in node_name:
+            edges.append((node_name, f"r_{red_level}_{node_name}"))
 
         # Add edge from redundant selector to remaining redundant selectors
         for right_red_level in range(red_level + 1, max_red_level + 1):
-            edges.append(
-                (
-                    f"r_{red_level}_{node_name}",
-                    f"r_{right_red_level}_{node_name}",
+            # if "counter" in node_name:
+            # print(f'recurrent counter edge!')
+            # exit()
+            if "counter" not in node_name:
+                edges.append(
+                    (
+                        f"r_{red_level}_{node_name}",
+                        f"r_{right_red_level}_{node_name}",
+                    )
                 )
-            )
     adaptation_graph.add_edges_from(
         edges,
         synapse=Synapse(
@@ -371,19 +372,20 @@ def add_recurrent_inhibitiory_synapses(
     """
 
     if "recur" in adaptation_graph.nodes[node_name].keys():
-        adaptation_graph.add_edges_from(
-            [
-                (
-                    f"r_{red_level}_{node_name}",
-                    f"r_{red_level}_{node_name}",
-                )
-            ],
-            synapse=Synapse(
-                weight=adaptation_graph.nodes[node_name]["recur"],
-                delay=0,
-                change_per_t=0,
-            ),
-        )
+        if "counter" not in node_name:
+            adaptation_graph.add_edges_from(
+                [
+                    (
+                        f"r_{red_level}_{node_name}",
+                        f"r_{red_level}_{node_name}",
+                    )
+                ],
+                synapse=Synapse(
+                    weight=adaptation_graph.nodes[node_name]["recur"],
+                    delay=0,
+                    change_per_t=0,
+                ),
+            )
     if node_name[:9] == "selector_":
         adaptation_graph.add_edges_from(
             [
