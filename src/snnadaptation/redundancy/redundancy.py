@@ -15,7 +15,7 @@ def apply_redundancy(
     redundancy: int,
     plot_config: Plot_config,
     # m,
-) -> None:
+) -> nx.DiGraph:
     """
     :param adaptation_graph: Graph with the MDSA SNN approximation solution.
     :param m: The amount of approximation iterations used in the MDSA
@@ -81,6 +81,7 @@ def apply_redundancy(
                 node_name=node_name,
                 red_level=red_level,
             )
+    return adaptation_graph
 
 
 @typechecked
