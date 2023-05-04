@@ -20,33 +20,33 @@ def get_population_neuron_properties(
         "degree_receiver",
     ]
     red_neuron_props: Dict[str, float] = {}
-    get_unchanged_neuron_properties(
+    set_unchanged_neuron_properties(
         adaptation_graph=adaptation_graph,
         node_name=node_name,
         red_neuron_props=red_neuron_props,
     )
-    if not any(
+    if any(
         unchanged_node_name in node_name
         for unchanged_node_name in unchanged_neuron_identifiers
     ):
         return red_neuron_props
     if "selector" in node_name:
-        get_population_selector_neuron_properties(
+        set_population_selector_neuron_properties(
             red_level=red_level,
             red_neuron_props=red_neuron_props,
         )
     elif "counter" in node_name:
-        get_population_counter_neuron_properties(
+        set_population_counter_neuron_properties(
             red_level=red_level,
             red_neuron_props=red_neuron_props,
         )
     elif "next_round" in node_name:
-        get_population_next_round_neuron_properties(
+        set_population_next_round_neuron_properties(
             red_level=red_level,
             red_neuron_props=red_neuron_props,
         )
     elif "terminator" in node_name:
-        get_population_terminator_neuron_properties(
+        set_population_terminator_neuron_properties(
             red_level=red_level,
             red_neuron_props=red_neuron_props,
         )
@@ -56,7 +56,7 @@ def get_population_neuron_properties(
 
 
 @typechecked
-def get_unchanged_neuron_properties(
+def set_unchanged_neuron_properties(
     *,
     adaptation_graph: nx.DiGraph,
     node_name: str,
@@ -78,7 +78,7 @@ def get_unchanged_neuron_properties(
 
 
 @typechecked
-def get_population_selector_neuron_properties(
+def set_population_selector_neuron_properties(
     *,
     red_level: int,
     red_neuron_props: Dict[str, float],
@@ -94,7 +94,7 @@ def get_population_selector_neuron_properties(
 
 
 @typechecked
-def get_population_counter_neuron_properties(
+def set_population_counter_neuron_properties(
     *,
     red_level: int,
     red_neuron_props: Dict[str, float],
@@ -102,11 +102,11 @@ def get_population_counter_neuron_properties(
     """The counter_y_neurons need a vth of red_level-1 because they should
     spike as soon as the accompanying  (population of) degree_receiver_x_y_z
     neuron(s) has fired."""
-    red_neuron_props["vth"] = red_level - 1
+    red_neuron_props["vth"] = float(red_level - 1)
 
 
 @typechecked
-def get_population_next_round_neuron_properties(
+def set_population_next_round_neuron_properties(
     *,
     red_level: int,
     red_neuron_props: Dict[str, float],
@@ -118,7 +118,7 @@ def get_population_next_round_neuron_properties(
 
 
 @typechecked
-def get_population_terminator_neuron_properties(
+def set_population_terminator_neuron_properties(
     *,
     red_level: int,
     red_neuron_props: Dict[str, float],

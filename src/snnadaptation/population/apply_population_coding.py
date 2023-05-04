@@ -19,7 +19,7 @@ def apply_population_coding(
     redundancy: int,
     plot_config: Plot_config,
     # m,
-) -> None:
+) -> nx.DiGraph:
     """
     :param adaptation_graph: Graph with the MDSA SNN approximation solution.
     :param m: The amount of approximation iterations used in the MDSA
@@ -43,12 +43,14 @@ def apply_population_coding(
         )
         for red_level in range(1, redundancy + 1):
             # Create redundant neurons.
-            create_redundant_population_node(
-                adaptation_graph=adaptation_graph,
-                node_name=node_name,
-                plot_config=plot_config,
-                red_level=red_level,
-            )
+            if "connector_" not in node_name:
+                create_redundant_population_node(
+                    adaptation_graph=adaptation_graph,
+                    node_name=node_name,
+                    plot_config=plot_config,
+                    red_level=red_level,
+                )
+    return adaptation_graph
 
 
 @typechecked
