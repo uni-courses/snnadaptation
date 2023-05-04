@@ -9,7 +9,7 @@ from typeguard import typechecked
 
 
 @typechecked
-def apply_redundancy(
+def apply_sparse_redundancy(
     *,
     adaptation_graph: nx.DiGraph,
     redundancy: int,

@@ -10,6 +10,9 @@ from typeguard import typechecked
 from snnadaptation.population.create_population_neurons import (
     get_population_neuron_properties,
 )
+from snnadaptation.population.create_population_synapses import (
+    add_population_synapses,
+)
 
 
 @typechecked
@@ -26,21 +29,12 @@ def apply_population_coding(
     approximation.
     """
     adaptation_graph.graph["red_level"] = redundancy
-
+    original_edges = copy.deepcopy(adaptation_graph.edges)
     # Create a copy of the original list of nodes of the input graph.
     original_nodes = copy.deepcopy(adaptation_graph.nodes)
     for node_name in original_nodes:
         # Get input synapses as dictionaries, one per node, store as node
         # attribute.
-        store_input_synapses(
-            adaptation_graph=adaptation_graph, node_name=node_name
-        )
-
-        # Get output synapses as dictionaries, one per node, store as node
-        # attribute.
-        store_output_synapses(
-            adaptation_graph=adaptation_graph, node_name=node_name
-        )
         for red_level in range(1, redundancy + 1):
             # Create redundant neurons.
             if "connector_" not in node_name:
@@ -50,41 +44,13 @@ def apply_population_coding(
                     plot_config=plot_config,
                     red_level=red_level,
                 )
+    add_population_synapses(
+        adaptation_graph=adaptation_graph,
+        original_edges=original_edges,
+        redundancy=redundancy,
+    )
+
     return adaptation_graph
-
-
-@typechecked
-def store_input_synapses(
-    *, adaptation_graph: nx.DiGraph, node_name: str
-) -> None:
-    """
-
-    :param adaptation_graph: Graph with the MDSA SNN approximation solution.
-    :param node_name: Node of the name of a networkx graph.
-
-    """
-    input_edges = []
-    for edge in adaptation_graph.edges:
-        if edge[1] == node_name:
-            input_edges.append(edge)
-    adaptation_graph.nodes[node_name]["input_edges"] = input_edges
-
-
-@typechecked
-def store_output_synapses(
-    *, adaptation_graph: nx.DiGraph, node_name: str
-) -> None:
-    """
-
-    :param adaptation_graph: Graph with the MDSA SNN approximation solution.
-    :param node_name: Node of the name of a networkx graph.
-
-    """
-    output_edges = []
-    for edge in adaptation_graph.edges:
-        if edge[0] == node_name:
-            output_edges.append(edge)
-    adaptation_graph.nodes[node_name]["output_edges"] = output_edges
 
 
 @typechecked
@@ -107,19 +73,18 @@ def create_redundant_population_node(
     bare_node_name = ori_lif.name
     identifiers = ori_lif.identifiers
 
-    redundant_neuron_properties: Dict[
-        str, float
-    ] = get_population_neuron_properties(
+    red_neuron_props: Dict[str, float] = get_population_neuron_properties(
         adaptation_graph=adaptation_graph,
         node_name=node_name,
         red_level=red_level,
     )
+    # pylint: disable=R0801
     lif_neuron = LIF_neuron(
         name=f"r_{red_level}_{bare_node_name}",
-        bias=redundant_neuron_properties["bias"],
-        du=redundant_neuron_properties["du"],
-        dv=redundant_neuron_properties["dv"],
-        vth=redundant_neuron_properties["vth"],
+        bias=red_neuron_props["bias"],
+        du=red_neuron_props["du"],
+        dv=red_neuron_props["dv"],
+        vth=red_neuron_props["vth"],
         pos=(
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[0]
