@@ -23,37 +23,44 @@ def add_population_synapses(
     # pylint: disable=R1702
     # Loop through original edges:
     for original_edge in original_edges:
+        original_weight: float = adaptation_graph[original_edge[0]][
+            original_edge[1]
+        ]["synapse"].weight
         if (  # Else: recurrent edges do not need to be fully connected.
             original_edge[0] != original_edge[1]
-            and "connector" not in original_edge[1]
         ):
-            original_weight: float = adaptation_graph[original_edge[0]][
-                original_edge[1]
-            ]["synapse"].weight
-            for left_red_level in range(0, redundancy + 1):
-                for right_red_level in range(0, redundancy + 1):
-                    # else: original synapse already exists.
-                    if not (left_red_level == 0 and right_red_level == 0):
-                        if left_red_level == 0:
-                            left_node_name = original_edge[0]
-                        else:
-                            left_node_name = (
-                                f"r_{left_red_level}_{original_edge[0]}"
+            if "connector" not in original_edge[1]:
+                for left_red_level in range(0, redundancy + 1):
+                    for right_red_level in range(0, redundancy + 1):
+                        # else: original synapse already exists.
+                        if not (left_red_level == 0 and right_red_level == 0):
+                            if left_red_level == 0:
+                                left_node_name = original_edge[0]
+                            else:
+                                left_node_name = (
+                                    f"r_{left_red_level}_{original_edge[0]}"
+                                )
+                            if right_red_level == 0:
+                                right_node_name = original_edge[1]
+                            else:
+                                right_node_name = (
+                                    f"r_{right_red_level}_{original_edge[1]}"
+                                )
+                            add_synapse(
+                                adaptation_graph=adaptation_graph,
+                                left_node_name=left_node_name,
+                                original_weight=original_weight,
+                                right_node_name=right_node_name,
                             )
-                        if right_red_level == 0:
-                            right_node_name = original_edge[1]
-                        else:
-                            right_node_name = (
-                                f"r_{right_red_level}_{original_edge[1]}"
-                            )
-                        add_synapse(
-                            adaptation_graph=adaptation_graph,
-                            left_node_name=left_node_name,
-                            original_weight=original_weight,
-                            right_node_name=right_node_name,
-                        )
         else:
-            print("TODO: add recurrent edge to redundant node.")
+            for red_level in range(1, redundancy + 1):
+                red_node_name = f"r_{red_level}_{original_edge[0]}"
+                add_synapse(
+                    adaptation_graph=adaptation_graph,
+                    left_node_name=red_node_name,
+                    original_weight=original_weight,
+                    right_node_name=red_node_name,
+                )
 
 
 @typechecked
@@ -67,8 +74,9 @@ def add_synapse(
 ) -> None:
     """Adds a synapse within the population."""
 
+    # Else: skip r_x_connector.
     if left_node_name in adaptation_graph.nodes:
-        print(f"add:{left_node_name, right_node_name}")
+        print(f"add:{left_node_name, right_node_name}: {original_weight}")
         adaptation_graph.add_edges_from(
             [(left_node_name, right_node_name)],
             synapse=Synapse(
@@ -78,5 +86,3 @@ def add_synapse(
             ),
             is_redundant=True,
         )
-    else:
-        print(f"skip:{left_node_name}")
