@@ -2,7 +2,6 @@
 
 TODO: check multiplies with 0, e.g. vth*max_redundancy with vth =0.
 """
-from pprint import pprint
 from typing import Dict, List
 
 import networkx as nx
@@ -47,13 +46,11 @@ def get_population_neuron_properties(
             red_neuron_props=red_neuron_props,
         )
     elif "terminator" in node_name:
-        print(f"node_name={node_name}")
-
         set_population_terminator_neuron_properties(
             max_redundancy=max_redundancy,
             red_neuron_props=red_neuron_props,
         )
-        pprint(red_neuron_props)
+
     else:
         raise ValueError(f"Error, {node_name} not supported.")
     return red_neuron_props
