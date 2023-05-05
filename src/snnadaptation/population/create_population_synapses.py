@@ -76,7 +76,7 @@ def add_synapse(
 
     # Else: skip r_x_connector.
     if left_node_name in adaptation_graph.nodes:
-        print(f"add:{left_node_name, right_node_name}: {original_weight}")
+        # print(f"add:{left_node_name, right_node_name}: {original_weight}")
         adaptation_graph.add_edges_from(
             [(left_node_name, right_node_name)],
             synapse=Synapse(

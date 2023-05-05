@@ -40,10 +40,23 @@ def apply_population_coding(
             if "connector_" not in node_name:
                 create_redundant_population_node(
                     adaptation_graph=adaptation_graph,
+                    max_redundancy=redundancy,
                     node_name=node_name,
                     plot_config=plot_config,
                     red_level=red_level,
                 )
+
+    for node_name in original_nodes:
+        if "connector_" not in node_name:
+            # TODO: overwrite original neuron with new properties.
+            ori_lif = adaptation_graph.nodes[node_name]["nx_lif"][0]
+            r_1_lif = adaptation_graph.nodes[f"r_1_{node_name}"]["nx_lif"][0]
+            ori_lif.bias = copy.deepcopy(r_1_lif.bias)
+            ori_lif.du = copy.deepcopy(r_1_lif.du)
+            ori_lif.dv = copy.deepcopy(r_1_lif.dv)
+            ori_lif.vth = copy.deepcopy(r_1_lif.vth)
+            # ori_lif.vth = Vth(red_neuron_props["vth"])
+
     add_population_synapses(
         adaptation_graph=adaptation_graph,
         original_edges=original_edges,
@@ -57,6 +70,7 @@ def apply_population_coding(
 def create_redundant_population_node(
     *,
     adaptation_graph: nx.DiGraph,
+    max_redundancy: int,
     node_name: str,
     plot_config: Plot_config,
     red_level: int,
@@ -76,8 +90,9 @@ def create_redundant_population_node(
     red_neuron_props: Dict[str, float] = get_population_neuron_properties(
         adaptation_graph=adaptation_graph,
         node_name=node_name,
-        red_level=red_level,
+        max_redundancy=max_redundancy,
     )
+
     # pylint: disable=R0801
     lif_neuron = LIF_neuron(
         name=f"r_{red_level}_{bare_node_name}",
