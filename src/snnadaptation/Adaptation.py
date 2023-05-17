@@ -1,6 +1,9 @@
 """Contains experiment settings."""
 # pylint: disable=R0801
 
+import hashlib
+import json
+
 from typeguard import typechecked
 
 
@@ -26,3 +29,18 @@ class Adaptation:
             raise ValueError(
                 "Error, redundancy must be equal to, or larger than 1."
             )
+
+    @typechecked
+    def get_hash(
+        self,
+    ) -> str:
+        """Returns a unique hash of the object."""
+        unique_id = str(
+            hashlib.sha256(
+                # json.dumps(sorted(some_config.__dict__)).encode("utf-8")
+                json.dumps(f"{self.adaptation_type}_{self.redundancy}").encode(
+                    "utf-8"
+                )
+            ).hexdigest()
+        )
+        return unique_id
