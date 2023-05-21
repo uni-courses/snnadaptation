@@ -3,6 +3,8 @@
 
 import hashlib
 import json
+import math
+from typing import Tuple
 
 from typeguard import typechecked
 
@@ -45,3 +47,23 @@ class Adaptation:
         )
         print(f"adaptation unique_id=  {unique_id}")
         return unique_id
+
+
+@typechecked
+def get_xy_point_on_circle(
+    radius: float, n: int, total_points: int
+) -> Tuple[float, float]:
+    """Returns the x- and y-coordinates of the nth point on a circle, with a
+    total of total_points points on the circle.
+
+    The first point is located on top/12 o clock.
+    """
+    if n >= total_points:
+        raise ValueError(
+            f"Error, all indices start at 0. n={n},"
+            + f" total_points={total_points}"
+        )
+    angle: float = (2 * math.pi * n) / total_points
+    x: float = radius * math.sin(angle)
+    y: float = radius * math.cos(angle)
+    return x, y - radius

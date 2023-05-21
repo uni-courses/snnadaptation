@@ -7,6 +7,7 @@ from snnbackends.networkx.LIF_neuron import LIF_neuron
 from snncompare.export_plots.Plot_config import Plot_config
 from typeguard import typechecked
 
+from snnadaptation.Adaptation import get_xy_point_on_circle
 from snnadaptation.population.create_population_neurons import (
     get_population_neuron_properties,
 )
@@ -103,19 +104,22 @@ def create_redundant_population_node(
         pos=(
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[0]
-                + (plot_config.dx_redundant * red_level)
-                * (1.0 + plot_config.redundant_curve_factor)
-                ** red_level  # Curve to right
+                + get_xy_point_on_circle(
+                    radius=plot_config.dx_redundant,
+                    n=red_level,
+                    total_points=max_redundancy + 1,
+                )[0]
             ),
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[1]
-                + (plot_config.dy_redundant * red_level)
-                * (1.0 - plot_config.redundant_curve_factor)
-                ** red_level  # Curve down
+                + get_xy_point_on_circle(
+                    radius=plot_config.dx_redundant,
+                    n=red_level,
+                    total_points=max_redundancy + 1,
+                )[1]
             ),
         ),
         identifiers=identifiers,
     )
-
     adaptation_graph.add_node(lif_neuron.full_name)
     adaptation_graph.nodes[lif_neuron.full_name]["nx_lif"] = [lif_neuron]
