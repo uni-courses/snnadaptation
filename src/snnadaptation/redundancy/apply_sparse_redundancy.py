@@ -160,7 +160,7 @@ def create_redundant_node(
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[0]
                 + get_xy_point_on_circle(
-                    radius=plot_config.dx_redundant,
+                    radius=plot_config.redundancy_radius,
                     n=red_level,
                     total_points=max_redundancy + 1,
                 )[0]
@@ -168,7 +168,7 @@ def create_redundant_node(
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[1]
                 + get_xy_point_on_circle(
-                    radius=plot_config.dx_redundant,
+                    radius=plot_config.redundancy_radius,
                     n=red_level,
                     total_points=max_redundancy + 1,
                 )[1]
