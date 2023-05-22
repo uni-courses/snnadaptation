@@ -45,7 +45,6 @@ class Adaptation:
                 )
             ).hexdigest()
         )
-        print(f"adaptation unique_id=  {unique_id}")
         return unique_id
 
 
