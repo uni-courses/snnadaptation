@@ -47,6 +47,14 @@ class Adaptation:
         )
         return unique_id
 
+    @typechecked
+    def get_name(
+        self,
+    ) -> str:
+        """Returns a the adaptation name in format
+        <adaptation_type>_<redundancy>."""
+        return f"{self.adaptation_type}_{self.redundancy}"
+
 
 @typechecked
 def get_xy_point_on_circle(
