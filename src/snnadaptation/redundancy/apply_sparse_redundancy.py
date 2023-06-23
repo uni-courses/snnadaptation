@@ -7,15 +7,17 @@ from snnbackends.networkx.LIF_neuron import Identifier, LIF_neuron, Synapse
 from snncompare.export_plots.Plot_config import Plot_config
 from typeguard import typechecked
 
+from snnadaptation.Adaptation import get_xy_point_on_circle
+
 
 @typechecked
-def apply_redundancy(
+def apply_sparse_redundancy(
     *,
     adaptation_graph: nx.DiGraph,
     redundancy: int,
     plot_config: Plot_config,
     # m,
-) -> None:
+) -> nx.DiGraph:
     """
     :param adaptation_graph: Graph with the MDSA SNN approximation solution.
     :param m: The amount of approximation iterations used in the MDSA
@@ -44,6 +46,7 @@ def apply_redundancy(
                 node_name=node_name,
                 plot_config=plot_config,
                 red_level=red_level,
+                max_redundancy=redundancy,
             )
 
     for red_level in range(1, redundancy + 1):
@@ -81,6 +84,7 @@ def apply_redundancy(
                 node_name=node_name,
                 red_level=red_level,
             )
+    return adaptation_graph
 
 
 @typechecked
@@ -121,6 +125,7 @@ def store_output_synapses(
 def create_redundant_node(
     *,
     adaptation_graph: nx.DiGraph,
+    max_redundancy: int,
     node_name: str,
     plot_config: Plot_config,
     red_level: int,
@@ -154,15 +159,19 @@ def create_redundant_node(
         pos=(
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[0]
-                + (plot_config.dx_redundant * red_level)
-                * (1.0 + plot_config.redundant_curve_factor)
-                ** red_level  # Curve to right
+                + get_xy_point_on_circle(
+                    radius=plot_config.redundancy_radius,
+                    n=red_level,
+                    total_points=max_redundancy + 1,
+                )[0]
             ),
             float(
                 adaptation_graph.nodes[node_name]["nx_lif"][0].pos[1]
-                + (plot_config.dy_redundant * red_level)
-                * (1.0 - plot_config.redundant_curve_factor)
-                ** red_level  # Curve down
+                + get_xy_point_on_circle(
+                    radius=plot_config.redundancy_radius,
+                    n=red_level,
+                    total_points=max_redundancy + 1,
+                )[1]
             ),
         ),
         identifiers=identifiers,

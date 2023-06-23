@@ -3,12 +3,13 @@ from typing import Dict, Union
 
 from typeguard import typechecked
 
+from snnadaptation.Adaptation import Adaptation
+
 
 @typechecked
 def verify_redundancy_settings_for_exp_config(
     *,
-    # adaptation: Union[None, Dict[str, List[int]]],
-    adaptation: Union[None, Dict],
+    adaptation: Union[None, Adaptation],
 ) -> None:
     """Verifies the redundancy settings are presented in the right format, and
     that they contain valid values."""
@@ -35,10 +36,13 @@ def verify_redundancy_settings_for_exp_config(
 @typechecked
 def verify_redundancy_settings_for_run_config(
     *,
-    adaptation: Union[None, Dict],
+    adaptation: Union[None, Adaptation],
 ) -> None:
     """Verifies the redundancy settings are presented in the right format, and
-    that they contain valid values."""
+    that they contain valid values.
+
+    TODO: move into Adaptation object.
+    """
 
     if isinstance(adaptation, Dict):
         if "redundancy" in adaptation.keys():
